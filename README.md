@@ -17,6 +17,43 @@ PWA para documentar el paso de tecnólogos médicos por ubicaciones del servicio
 | [Tareas](TASKS.md) | Secuencia y dependencias |
 | [Guía para agentes](AGENTS.md) | Reglas de implementación |
 
-Descomprime el ZIP y copia la carpeta al repositorio para versionarla. Los diagramas editables están en `diagrams/`. Sus copias embebidas se pueden visualizar en GitHub.
+## Desarrollo local
 
-La implementación comienza con la validación de Supabase Auth en un entorno aislado. La puesta en producción depende de demostrar el control exclusivo de credenciales por el administrador. Consulta el [despliegue](docs/DEPLOYMENT.md) para preparar Vercel, Supabase e instalación PWA. Este paquete contiene la especificación previa al desarrollo.
+Requiere Node.js 22.12 o superior; el desarrollo actual utiliza Node.js 24.
+
+```sh
+npm ci --ignore-scripts
+npm test
+npm run typecheck
+npm run build
+npm run dev
+```
+
+La pantalla inicial informa que el sistema está en construcción. La ausencia de
+variables privadas no impide compilar: los endpoints protegidos rechazan el acceso
+con 503 hasta que exista una configuración válida. `/api/health` permanece en 503
+porque la aplicación completa aún no está habilitada.
+
+Para preparar una conexión real, copie `.env.example` a `.env.local` y complete
+los valores únicamente en el entorno privado. No publique ese archivo ni envíe
+sus valores por chat. La conexión PostgreSQL requiere un usuario de ejecución
+restringido, distinto del propietario de migraciones. No use la contraseña
+administrativa como credencial de ejecución.
+
+## Estado de implementación
+
+- Base Next.js, configuración protegida y pruebas locales.
+- Backend inicial de login, logout y consulta de perfil/último movimiento propio.
+- Esquema SQL inicial **en borrador**, probado con PostgreSQL embebido; no aplicado
+  todavía al proyecto Supabase.
+- Pendientes: interfaz de login, administración, escáner, registro e historial,
+  instalación PWA completa y aceptación contra infraestructura real.
+
+Las pruebas de autenticación usan exclusivamente identidades sintéticas y un
+proveedor Auth simulado. No demuestran el perímetro de Supabase ni el aislamiento
+entre conexiones PostgreSQL reales. Los diagramas editables están en `diagrams/`.
+
+La puesta en producción depende de demostrar el control exclusivo de credenciales
+por el administrador. Mantenga `RF007_VERIFIED=false` hasta obtener la evidencia
+de S01–S04; el indicador de configuración no sustituye esas pruebas. Consulte
+[despliegue](docs/DEPLOYMENT.md) y el [seguimiento](odd/tasks/application-mvp.md).

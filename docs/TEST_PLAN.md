@@ -29,3 +29,17 @@ Ejecutar con datos sintéticos en un ambiente aislado y repetir los controles Au
 | P03 | Restaurar respaldo en ambiente aislado y comprobar integridad, acceso, movimientos y revocación de sesiones restauradas. | RNF-013 |
 
 S01–S04 son bloqueantes. El equipo de producto valida el flujo completo con un QR impreso antes de habilitar usuarios reales.
+
+## Evidencia local de desarrollo
+
+Ejecute `npm test` y `npm run typecheck`. `tests/auth.test.ts` invoca los handlers
+HTTP reales con PostgreSQL embebido (PGlite), cuentas sintéticas y Auth simulado.
+Comprueba cookie, almacenamiento cifrado, perfil/último movimiento propio,
+denegaciones, versión de cuenta, revocación, renovación, logout y límites.
+`tests/database.test.ts` comprueba permisos del rol de aplicación y snapshots.
+
+La concurrencia del test de renovación ocurre sobre una conexión PGlite
+serializada. No prueba contención real entre conexiones ni la topología Supabase.
+A02, A03, S01–S04 y la salida a producción requieren repetir sus escenarios
+contra el proveedor y los dispositivos reales. No se consideran aceptados por
+el hecho de que la suite local esté en verde.

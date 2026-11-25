@@ -4,13 +4,15 @@ sequenceDiagram
     participant A as Supabase Auth
     participant D as PostgreSQL
     P->>V: Usuario y contraseña
-    V->>D: Resolver cuenta activa
+    V->>D: Resolver cuenta activa y versión
     V->>A: Autenticar desde servidor
     A-->>V: Identidad y tokens
+    V->>D: Bloquear perfil y revalidar versión
     V->>D: Guardar sesión de aplicación
     V-->>P: Cookie opaca HttpOnly
     P->>V: Solicitud protegida
     V->>D: Comprobar sesión, rol y cuenta activa
+    Note over V,D: Bloquear perfil antes de sesión; serializar renovación
     opt Renovación requerida
         V->>A: Renovar desde servidor
         V->>D: Guardar tokens actualizados

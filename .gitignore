@@ -12,3 +12,5 @@ coverage/
 /APA-Transit.zip
 /test-results/
 /playwright-report/
+.opencode/skills/*
+!.opencode/skills/PROVENANCE.md

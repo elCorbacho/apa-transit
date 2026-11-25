@@ -15,6 +15,19 @@ erDiagram
 | `movements` | `id uuid` PK, `user_id` y `location_id` FK restrictivas, `user_name_snapshot`, `location_name_snapshot`, `request_id uuid` y `recorded_at timestamptz`. Único por `(user_id, request_id)`. |
 | `app_sessions` | Hash único de la cookie, `user_id` FK, tokens Auth cifrados, fechas de creación y vencimiento, fecha de revocación. Índice por usuario para revocación. |
 
+El borrador local agrega `auth_version` en perfiles. Los cambios de usuario,
+correo, rol, activación, bloqueo o borrado lógico incrementan esa versión y revocan
+las sesiones mediante triggers, dentro de la misma transacción. El login compara
+la versión anterior y posterior a Auth para rechazar una autenticación que quedó
+obsoleta durante una modificación administrativa. El nombre visible por sí solo
+no revoca sesiones.
+
+El bloqueo temporal usa `blocked_at`; es independiente de `is_active` y
+`deleted_at`. `admin_operations` reserva operaciones pendientes sin contraseñas;
+`audit_events` registra metadatos administrativos y `rate_limits` conserva buckets
+de intentos con claves hash. Los flujos de administración y reconciliación aún
+están pendientes. Ninguna migración de este borrador se ha aplicado al proyecto remoto.
+
 Usa un esquema privado. Activa RLS en las tablas de aplicación y concede permisos explícitos al rol de servidor correspondiente. Retira acceso y ejecución de funciones a `PUBLIC`, `anon` y `authenticated`. El propietario de migraciones es distinto del rol de ejecución. Restringe los movimientos a inserción y lectura mediante rutas autorizadas. El rol de aplicación carece de permisos de actualización y borrado sobre movimientos.
 
 ## Registro transaccional

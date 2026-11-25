@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permissions": [
+    { "action": "apa_vercel_*", "resource": "*", "effect": "deny" },
+    { "action": "apa_vercel_get_project", "resource": "*", "effect": "ask" },
+    { "action": "apa_vercel_list_deployments", "resource": "*", "effect": "ask" },
+    { "action": "apa_vercel_get_deployment", "resource": "*", "effect": "ask" },
+    { "action": "apa_vercel_authorize_team_access", "resource": "*", "effect": "ask" },
+    { "action": "apa_supabase_*", "resource": "*", "effect": "deny" },
+    { "action": "apa_supabase_list_tables", "resource": "*", "effect": "ask" },
+    { "action": "apa_supabase_list_extensions", "resource": "*", "effect": "ask" },
+    { "action": "apa_supabase_list_migrations", "resource": "*", "effect": "ask" },
+    { "action": "apa_supabase_search_docs", "resource": "*", "effect": "ask" }
+  ],
+  "mcp": {
+    "servers": {
+      "apa_vercel": {
+        "type": "remote",
+        "url": "https://mcp.vercel.com"
+      },
+      "apa_supabase": {
+        "type": "remote",
+        "url": "https://mcp.supabase.com/mcp?project_ref=ydbhxqxbnwritsgbitei&read_only=true&features=database,docs"
+      }
+    }
+  }
+}

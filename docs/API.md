@@ -1,12 +1,12 @@
 # API HTTP propuesta
 
-La PWA consume el mismo origen. Las respuestas protegidas y de sesión usan `Cache-Control: no-store`. Se usa JSON excepto en descargas PNG y respuestas 204. Los cuerpos se validan con esquemas estrictos. Las rutas mutantes requieren origen y protección CSRF. Todas las marcas de tiempo viajan en ISO 8601 UTC.
+La PWA consume el mismo origen. Las respuestas protegidas y de sesión usan `Cache-Control: no-store`. Se usa JSON excepto en descargas PNG y respuestas 204. Los cuerpos se validan con esquemas estrictos. Las rutas mutantes requieren `Origin` exactamente igual a `APP_ORIGIN` y el encabezado `X-APA-CSRF: 1`; no se habilita CORS entre orígenes. Todas las marcas de tiempo viajan en ISO 8601 UTC.
 
 | Método y ruta | Autorización | Entrada o resultado |
 |---|---|---|
-| `POST /api/auth/login` | Pública con controles de origen y frecuencia | `{username,password}` → 200 con perfil y cookie |
+| `POST /api/auth/login` | Pública con controles de origen y frecuencia | `{username,password}` → 200 con `{profile}` y cookie |
 | `POST /api/auth/logout` | Mismo origen con protección CSRF | 204, revoca la sesión si existe y borra la cookie |
-| `GET /api/me` | Cuenta activa | 200 con perfil y último movimiento propio o null |
+| `GET /api/me` | Cuenta activa | 200 con `{profile,lastMovement}`; último movimiento propio o null |
 | `GET /api/movements` | Cuenta activa | `cursor` opcional → 200 con `{items,nextCursor}` |
 | `POST /api/movements` | Cuenta activa | `{qrPayload,requestId}` → 201 al crear o 200 al repetir |
 | `GET /api/admin/users` | Admin | 200 con cuentas y estados, sin contraseñas ni tokens |
@@ -23,6 +23,30 @@ La PWA consume el mismo origen. Las respuestas protegidas y de sesión usan `Cac
 ## Movimientos
 
 `qrPayload` tiene el formato exacto `APA-TRANSIT:LOC:<uuid>`. `requestId` es un UUID por captura. El servidor deriva quién registra, dónde y cuándo. La respuesta de movimiento devuelve `id`, `locationId`, `locationName`, `userName` y `recordedAt`. La lista usa orden descendente por fecha e ID, tamaño fijo propuesto de 50 y cursor opaco validado con ambos valores. `nextCursor` es null al final. El cliente conserva el mismo identificador si perdió la respuesta de una captura. Cada lectura deliberada nueva genera otro identificador.
+
+## Autenticación implementada en desarrollo
+
+`profile` contiene `id`, `username`, `fullName`, `email` y `role`; nunca contiene
+tokens ni contraseñas. El login acepta únicamente `username` y `password`, normaliza
+el nombre de usuario y limita el cuerpo JSON a 8 KiB. La cookie
+`__Host-apa_session` es opaca, persistente, HttpOnly y Secure, con SameSite=Lax.
+El cierre devuelve 204 y expira la cookie incluso cuando la sesión ya estaba revocada.
+
+La renovación ocurre en el servidor al consultar una sesión cuyo token Auth está
+próximo a vencer. No se agrega un endpoint público de renovación, registro o
+recuperación. Una falla transitoria devuelve 503 sin revocar la sesión; una
+denegación definitiva la revoca y devuelve 401. Un perfil inactivo, bloqueado o
+eliminado no obtiene acceso.
+
+Como parámetros de desarrollo, el login permite 5 intentos por nombre de usuario
+y 60 por IP en 15 minutos; fuera de Vercel comparte un bucket local en lugar de
+confiar en encabezados enviados por el cliente. La duración inicial configurable
+es de 7 días. Estos valores y el comportamiento del proxy deben validarse antes
+del piloto, no constituyen decisiones institucionales ya aprobadas.
+
+Solo login, logout, perfil y el endpoint de preparación `/api/health` están
+implementados en esta etapa. Las demás rutas de la tabla siguen siendo contratos
+pendientes. Health devuelve 503 y `operational:false` mientras el MVP no esté habilitado.
 
 ## Errores
 
