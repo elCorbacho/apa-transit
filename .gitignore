@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+coverage/
+.env*
+!.env.example
+.vercel/
+.supabase/
+.atl/
+.codegraph/
+*.tsbuildinfo
+/APA-Transit.zip
+/test-results/
+/playwright-report/

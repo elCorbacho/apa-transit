@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant P as PWA
+    participant V as Vercel
+    participant A as Supabase Auth
+    participant D as PostgreSQL
+    P->>V: Usuario y contraseña
+    V->>D: Resolver cuenta activa
+    V->>A: Autenticar desde servidor
+    A-->>V: Identidad y tokens
+    V->>D: Guardar sesión de aplicación
+    V-->>P: Cookie opaca HttpOnly
+    P->>V: Solicitud protegida
+    V->>D: Comprobar sesión, rol y cuenta activa
+    opt Renovación requerida
+        V->>A: Renovar desde servidor
+        V->>D: Guardar tokens actualizados
+    end
+    V-->>P: Resultado de la aplicación

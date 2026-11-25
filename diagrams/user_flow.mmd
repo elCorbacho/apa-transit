@@ -1,0 +1,12 @@
+flowchart TD
+    O["Abrir APA Transit"] --> V{"Sesión vigente"}
+    V -->|No| L["Ingresar usuario y contraseña"]
+    L --> I["Inicio"]
+    V -->|Sí| I
+    I --> S["Escanear QR"]
+    I --> H["Movimientos generales"]
+    I --> C["Configuración según rol"]
+    S --> R{"Servidor confirma persistencia"}
+    R -->|Sí| E["Mostrar usuario, ubicación y hora"]
+    R -->|No| N["Mostrar error o resultado pendiente"]
+    E --> S

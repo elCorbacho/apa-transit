@@ -1,0 +1,6 @@
+flowchart LR
+    PWA["PWA móvil y web"] -->|"HTTPS · cookie opaca"| BFF["Next.js en Vercel"]
+    BFF -->|"Ingreso autenticado de servidor"| AUTH["Supabase Auth"]
+    BFF -->|"TLS · rol de aplicación"| DB["Supabase PostgreSQL"]
+    DB --- S["Sesiones y perfiles"]
+    DB --- M["Ubicaciones y movimientos"]

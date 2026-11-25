@@ -1,0 +1,19 @@
+# Tareas de implementación
+
+Todas las tareas parten pendientes.
+
+| ID | Entregable | Depende de | Cierre |
+|---|---|---|---|
+| T01 | Validar ingreso de Auth en entorno aislado y documentar decisión de infraestructura | — | S01–S04 en destino |
+| T02 | Esqueleto Next.js, PWA y configuración aislada por ambiente | — | P01 en dispositivos |
+| T03 | Migraciones, permisos, sesiones y transacción de escaneo | — | D01 y M02–M04 |
+| T04 | Login, renovación, perfil y cierre | T01, T03 | A01–A04 |
+| T05 | Administración de cuentas y reconciliación con Auth | T04 | U01–U03 |
+| T06 | Administración de ubicaciones y PNG para impresión | T04 | Q01–Q02 |
+| T07 | Cámara, registro automático y confirmación | T03, T04, T06 | M01–M04 |
+| T08 | Historial y último movimiento propio | T07 | H01–H02 |
+| T09 | Piloto, recuperación de infraestructura y salida | T01–T08 | P02, P03 y repetición de S01–S04 |
+
+Durante T01, conserva evidencia redactada de la configuración y de cada prueba negativa. Si el proyecto administrado no ofrece un perímetro comprobable, evalúa el ingreso privado de Supabase autogestionado de [Seguridad](docs/SECURITY.md). El paso a producción queda pendiente hasta cerrar T01 y T09.
+
+Antes del piloto, acuerda el inventario de ubicaciones, responsables operativos, expiración de sesiones, retención y objetivos de respaldo. Registra la decisión en el documento correspondiente.
