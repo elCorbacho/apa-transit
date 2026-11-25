@@ -57,3 +57,22 @@ La puesta en producción depende de demostrar el control exclusivo de credencial
 por el administrador. Mantenga `RF007_VERIFIED=false` hasta obtener la evidencia
 de S01–S04; el indicador de configuración no sustituye esas pruebas. Consulte
 [despliegue](docs/DEPLOYMENT.md) y el [seguimiento](odd/tasks/application-mvp.md).
+
+## Licencia
+
+El código de la aplicación se distribuye bajo [PolyForm Noncommercial 1.0.0](LICENSE).
+Se permite el uso personal, educativo, de investigación y benéfico; **el uso
+comercial requiere una licencia comercial separada del titular**. Esta licencia no
+es de código abierto y no autoriza su venta, reventa ni incorporación en un producto
+o servicio comercial sin ese acuerdo.
+
+Alcance:
+
+- Cubre el código fuente de la aplicación en este repositorio.
+- Los documentos de `docs/`, `TASKS.md` y `AGENTS.md` provienen de la especificación
+  del proyecto y conservan su autoría original; esta licencia no los relicencia.
+- Las dependencias de terceros mantienen sus propias licencias (Next.js, React y el
+  resto del ecosistema bajo MIT). Las skills de `.opencode/skills` son Apache-2.0 y
+  no se distribuyen en este repositorio: sólo se versiona su procedencia.
+- El historial de movimientos que la aplicación almacene pertenece a la institución
+  que la opere, no al titular del código.
