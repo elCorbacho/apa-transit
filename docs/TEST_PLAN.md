@@ -51,6 +51,23 @@ advisory y del bloqueo de ubicación, pero **no** demuestra la contención real
 entre conexiones PostgreSQL ni la desactivación concurrente (M02/M04). No
 considerar estos casos aceptados antes de ejecutar pruebas con conexiones
 independientes y datos sintéticos en un entorno aislado.
+Para M02/M04, ejecutá `APA_TEST_PG_SOCKET=/ruta/al/socket
+APA_TEST_PG_PORT=55479 npm run test:postgres` contra un PostgreSQL local
+**aislado** de pruebas, con un usuario propietario `apa_test` creado por
+`initdb -U apa_test`. La variable del socket es obligatoria: la ejecución
+explícita falla si falta; `npm test` omite estos casos cuando no hay servidor,
+sin confundir esa omisión con aceptación. El runner crea una base aleatoria
+solo para pruebas, aplica la migración, usa conexiones independientes y la
+elimina al terminar; no admite host de red. El servidor de prueba debe usar
+`listen_addresses=''` y un directorio de socket privado. No uses un clúster
+con datos reales ni el proyecto remoto.
+
+Se comprobaron cinco escenarios: dos sesiones con el mismo identificador
+de captura (un solo movimiento, repetición tras perder la respuesta y conflicto
+con otro QR), captura anterior a desactivación de ubicación y de cuenta,
+y ambos órdenes inversos. La espera por bloqueo se constata con
+`pg_blocking_pids`, no se infiere de la simultaneidad de promesas. Esta prueba
+local no sustituye la aceptación de Auth/Supabase en destino ni RF-007.
 El límite provisional de 120 intentos de escaneo por sesión se comprueba con
 datos sintéticos, incluidos QR inválidos y desconocidos, sin persistir el
 movimiento rechazado. El umbral operativo debe validarse antes del piloto.

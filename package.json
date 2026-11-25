@@ -10,6 +10,7 @@
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:postgres": "node -e \"if (!process.env.APA_TEST_PG_SOCKET) { console.error('Set APA_TEST_PG_SOCKET to an isolated local PostgreSQL UNIX socket.'); process.exit(1) }\" && vitest run tests/postgres-concurrency.test.ts",
     "test:watch": "vitest",
     "check": "npm run typecheck && npm test && npm run build"
   },
