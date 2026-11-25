@@ -43,3 +43,14 @@ serializada. No prueba contención real entre conexiones ni la topología Supaba
 A02, A03, S01–S04 y la salida a producción requieren repetir sus escenarios
 contra el proveedor y los dispositivos reales. No se consideran aceptados por
 el hecho de que la suite local esté en verde.
+
+`tests/movements.test.ts` comprueba la captura secuencial, repetición,
+desactivación, historial compartido, cursor con fechas iguales y errores de
+entrada/origen mediante PGlite. Comprueba el orden de adquisición del bloqueo
+advisory y del bloqueo de ubicación, pero **no** demuestra la contención real
+entre conexiones PostgreSQL ni la desactivación concurrente (M02/M04). No
+considerar estos casos aceptados antes de ejecutar pruebas con conexiones
+independientes y datos sintéticos en un entorno aislado.
+El límite provisional de 120 intentos de escaneo por sesión se comprueba con
+datos sintéticos, incluidos QR inválidos y desconocidos, sin persistir el
+movimiento rechazado. El umbral operativo debe validarse antes del piloto.

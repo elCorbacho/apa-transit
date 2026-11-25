@@ -22,7 +22,7 @@ La PWA consume el mismo origen. Las respuestas protegidas y de sesión usan `Cac
 
 ## Movimientos
 
-`qrPayload` tiene el formato exacto `APA-TRANSIT:LOC:<uuid>`. `requestId` es un UUID por captura. El servidor deriva quién registra, dónde y cuándo. La respuesta de movimiento devuelve `id`, `locationId`, `locationName`, `userName` y `recordedAt`. La lista usa orden descendente por fecha e ID, tamaño fijo propuesto de 50 y cursor opaco validado con ambos valores. `nextCursor` es null al final. El cliente conserva el mismo identificador si perdió la respuesta de una captura. Cada lectura deliberada nueva genera otro identificador.
+`qrPayload` tiene el formato exacto `APA-TRANSIT:LOC:<uuid>`. `requestId` es un UUID por captura. El servidor deriva quién registra, dónde y cuándo. La respuesta de movimiento devuelve `id`, `locationId`, `locationName`, `userName`, `requestId` y `recordedAt`. El historial es general para todas las cuentas activas, sin filtro por usuario; usa orden descendente por fecha e ID, páginas de 50 y cursor opaco validado con ambos valores. `nextCursor` es null al final. El cliente conserva el mismo identificador si perdió la respuesta de una captura. Cada lectura deliberada nueva genera otro identificador. Un cursor inválido devuelve 400 y un origen no autorizado devuelve 403.
 
 ## Autenticación implementada en desarrollo
 
@@ -44,9 +44,16 @@ confiar en encabezados enviados por el cliente. La duración inicial configurabl
 es de 7 días. Estos valores y el comportamiento del proxy deben validarse antes
 del piloto, no constituyen decisiones institucionales ya aprobadas.
 
-Solo login, logout, perfil y el endpoint de preparación `/api/health` están
-implementados en esta etapa. Las demás rutas de la tabla siguen siendo contratos
-pendientes. Health devuelve 503 y `operational:false` mientras el MVP no esté habilitado.
+Login, logout, perfil, movimientos e `/api/health` están implementados localmente;
+la captura concurrente requiere validación adicional entre conexiones PostgreSQL.
+Las rutas administrativas de la tabla siguen pendientes. Health devuelve 503 y
+`operational:false` mientras el MVP no esté habilitado.
+
+En desarrollo, el escaneo tiene un límite provisional de 120 intentos por
+sesión en una ventana de 15 minutos. También cuentan QR inválidos o desconocidos
+y repeticiones idempotentes. Las respuestas 429 no registran movimientos;
+este límite no sustituye los controles adicionales de abuso del entorno de
+destino. Confirmar el umbral con el equipo antes del piloto.
 
 ## Errores
 

@@ -33,8 +33,8 @@ Usa un esquema privado. Activa RLS en las tablas de aplicación y concede permis
 ## Registro transaccional
 
 1. Comprueba la sesión y bloquea el perfil en un modo compatible con consultas, pero incompatible con una desactivación concurrente. Aplica un orden de bloqueos uniforme. Verifica cuenta activa y sin borrado lógico.
-2. Valida el formato del QR, resuelve su token y busca un registro para `(user_id, request_id)`. Si existe y corresponde a esa ubicación, devuelve el registro original aunque la ubicación se haya desactivado. Si corresponde a otra, devuelve conflicto.
-3. Para una captura nueva, comprueba que la ubicación siga activa bajo el bloqueo correspondiente. Inserta las referencias, los nombres vigentes y la hora de PostgreSQL. Resuelve la carrera de inserciones con la restricción única y relee el registro ganador para aplicar la misma comprobación.
+2. Valida el formato del QR y toma un bloqueo transaccional advisory para `(user_id, request_id)` antes de buscar el movimiento. Resuelve el token de ubicación bajo `FOR SHARE` y consulta el registro existente. Si corresponde a esa ubicación, devuelve el original aunque se haya desactivado. Si corresponde a otra, devuelve conflicto.
+3. Para una captura nueva, comprueba que la ubicación siga activa mientras mantiene el bloqueo. Inserta las referencias, los nombres vigentes y la hora de PostgreSQL. La restricción única es una segunda barrera, no un sustituto del bloqueo; repetir pruebas con conexiones PostgreSQL independientes antes de validar M02/M04.
 4. Confirma la transacción antes de responder. La desactivación de una cuenta revoca sus sesiones en la misma transacción de aplicación.
 
 Indexa `(recorded_at DESC, id DESC)` para el historial y `(user_id, recorded_at DESC, id DESC)` para el último movimiento propio. Usa ambos campos como cursor de orden total. Almacena fechas UTC y renderiza con la zona IANA `America/Santiago`.

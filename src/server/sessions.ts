@@ -131,6 +131,19 @@ export async function withSession<T>(
   return result.value;
 }
 
+// A provisional development limit; confirm the threshold with operations before the pilot.
+export async function limitCaptureAttempt(tx: Queryable, request: Request) {
+  const token = cookieToken(request);
+  if (!token) throw invalidSession();
+  const { rows } = await tx.query<{ attempts: number }>(`
+    insert into apa_private.rate_limits(key_hash) values ($1)
+    on conflict (key_hash) do update set
+      attempts = case when rate_limits.window_at < clock_timestamp()-interval '15 minutes' then 1 else rate_limits.attempts+1 end,
+      window_at = case when rate_limits.window_at < clock_timestamp()-interval '15 minutes' then clock_timestamp() else rate_limits.window_at end
+    returning attempts`, [hashSessionToken(`scan:${token}`)]);
+  if (rows[0].attempts > 120) throw new ApiError(429, "RATE_LIMITED", "Too many attempts. Try again later.");
+}
+
 export async function logoutSession(request: Request) {
   const token = cookieToken(request);
   if (token) await database().query(
