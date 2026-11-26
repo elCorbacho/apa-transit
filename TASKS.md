@@ -23,7 +23,8 @@ parcial no equivale a aceptar un caso en el entorno de destino.
 | T02 | Estructura Next.js y manifiesto PWA | Instalación y uso en dispositivos (P01) |
 | T03 | Migración redactada, endpoints de sesión/movimientos, M02/M04 comprobados en PostgreSQL aislado | Aplicación y validación de permisos en el destino (D01) |
 | T04 | API local de login, perfil y cierre; interfaz inicial de login y perfil | Auth real, navegador y sesiones persistentes (A01–A04) |
-| T05–T06 | Pendientes | Administración de cuentas/ubicaciones y QR |
+| T05 | Pendiente | Administración de cuentas y reconciliación con Auth |
+| T06 | API local de ubicaciones y descarga PNG, con pruebas sintéticas | Gestión en interfaz, lectura de QR impreso en dispositivos y aceptación Q01–Q02 |
 | T07 | Pendiente | Cámara, captura automática y confirmación |
 | T08 | API e interfaz local de historial | Flujo completo y H01–H02 en dispositivos |
 | T09 | Pendiente | Piloto, respaldo, restauración y aceptación de seguridad |

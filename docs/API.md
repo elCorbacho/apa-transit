@@ -46,7 +46,14 @@ del piloto, no constituyen decisiones institucionales ya aprobadas.
 
 Login, logout, perfil, movimientos e `/api/health` están implementados localmente;
 la captura concurrente requiere validación adicional entre conexiones PostgreSQL.
-Las rutas administrativas de la tabla siguen pendientes. Health devuelve 503 y
+Las rutas administrativas de ubicaciones están implementadas localmente: el
+listado devuelve `{items}` ordenado por nombre e ID; crear o modificar devuelve
+`{id,name,isActive}`. El identificador y el token QR los genera PostgreSQL;
+el token no aparece en las respuestas JSON. La descarga PNG, exclusiva del
+administrador, codifica `APA-TRANSIT:LOC:<uuid>` con el token persistente de la
+ubicación y se entrega sin caché. Renombrar o desactivar no cambia el QR.
+Los cambios dejan un evento de auditoría con actor, ubicación y acción.
+Las rutas administrativas de usuarios siguen pendientes. Health devuelve 503 y
 `operational:false` mientras el MVP no esté habilitado.
 
 En desarrollo, el escaneo tiene un límite provisional de 120 intentos por

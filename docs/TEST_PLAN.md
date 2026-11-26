@@ -79,3 +79,10 @@ de sesión, las vistas estáticas de login e historial y la clasificación de un
 401 tardío del historial tras cambiar de pantalla o cerrar sesión. No simulan interacción
 real del navegador, cookies ni cámara; A01–A04, H01 y P01 siguen requiriendo
 pruebas de extremo a extremo en el entorno y dispositivos previstos.
+
+`tests/locations.test.ts` invoca rutas de administración con PGlite y cuentas
+sintéticas: comprueba acceso restringido, origen/CSRF, creación, listado,
+renombrado, descarga PNG sin caché, token inmutable, desactivación/reactivación,
+rechazo de captura inactiva, historial posterior y auditoría. No comprueba que
+un teléfono lea el PNG impreso ni la contención entre conexiones reales para
+una desactivación simultánea: Q01/Q02 y M04 siguen requiriendo esas pruebas.
