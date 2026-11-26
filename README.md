@@ -46,21 +46,41 @@ administrativa como credencial de ejecución.
 
 ## Estado de implementación
 
-- Base Next.js, configuración protegida y pruebas locales.
-- Backend inicial de login, logout y consulta de perfil/último movimiento propio.
-- Esquema SQL inicial **en borrador**, probado con PostgreSQL embebido; no aplicado
-  todavía al proyecto Supabase.
-- Pendientes: interfaz de login, administración, escáner, registro e historial,
-  instalación PWA completa y aceptación contra infraestructura real.
+### Completado localmente
 
-Las pruebas de autenticación usan exclusivamente identidades sintéticas y un
-proveedor Auth simulado. No demuestran el perímetro de Supabase ni el aislamiento
-entre conexiones PostgreSQL reales. Los diagramas editables están en `diagrams/`.
+- **Backend completo:**
+  - Autenticación con sesiones opacas y renovación automática
+  - Captura de movimientos con idempotencia y control de concurrencia
+  - API de administración de ubicaciones (CRUD completo, descarga de QR PNG)
+  - API de administración de usuarios con reconciliación Auth (email, password, role, activación)
+  - Protección del último administrador activo
+  - Auditoría de cambios administrativos
 
-La puesta en producción depende de demostrar el control exclusivo de credenciales
-por el administrador. Mantenga `RF007_VERIFIED=false` hasta obtener la evidencia
-de S01–S04; el indicador de configuración no sustituye esas pruebas. Consulte
-[despliegue](docs/DEPLOYMENT.md) y el [seguimiento](odd/tasks/application-mvp.md).
+- **Frontend completo:**
+  - Login con credenciales institucionales
+  - Inicio con último movimiento propio
+  - Historial compartido con paginación por cursor
+  - Escáner QR con cámara trasera preferida y confirmación visual
+  - Administración de ubicaciones (listar, crear, renombrar, desactivar, descargar QR)
+  - Administración de usuarios (listar, crear, renombrar, email, password, role, activar/desactivar)
+  - Cierre de sesión con limpieza de estado privado
+
+- **Pruebas:**
+  - 104 tests unitarios pasando
+  - 5 tests de concurrencia PostgreSQL (omitted sin servidor real)
+  - TypeScript y build aprobados
+  - Verificación independiente de cambios críticos
+
+### Pendiente para producción
+
+- **Despliegue:** Aplicar migración SQL en Supabase, configurar Vercel con variables de entorno
+- **Aceptación de seguridad:** RF-007 S01-S04 en entorno real (verificar control exclusivo de credenciales)
+- **Pruebas en dispositivos:** Validar cámara, PWA, permisos y flujos completos en Android/iOS
+- **Piloto:** Ejecutar casos de aceptación con usuarios reales
+
+Las pruebas locales usan identidades sintéticas y un proveedor Auth simulado. No demuestran el perímetro de Supabase ni el aislamiento entre conexiones PostgreSQL reales. Los diagramas editables están en `diagrams/`.
+
+La puesta en producción depende de demostrar el control exclusivo de credenciales por el administrador. Mantenga `RF007_VERIFIED=false` hasta obtener la evidencia de S01–S04; el indicador de configuración no sustituye esas pruebas. Consulte [despliegue](docs/DEPLOYMENT.md) y el [seguimiento](odd/tasks/application-mvp.md).
 
 ## Licencia
 

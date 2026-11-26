@@ -1,5 +1,9 @@
 # Despliegue
 
+## Guía rápida
+
+Para instrucciones paso a paso, consulte la **[Guía de Despliegue Completa](DEPLOYMENT_GUIDE.md)**.
+
 ## Preparación
 
 1. Crea ambientes separados para desarrollo, pruebas y producción. Asocia cada despliegue Vercel solamente a sus servicios de Supabase y a su dominio HTTPS. Usa datos sintéticos y credenciales distintas en vistas previas.
@@ -8,6 +12,13 @@
 4. Aprovisiona el primer administrador mediante un procedimiento protegido, verifica su cuenta y retira el mecanismo temporal de arranque. Carga el catálogo real y verifica con el servicio dónde se instala cada impresión. Conserva el mismo QR cuando se edita el nombre.
 5. Configura manifest, iconos, URL de inicio, modo standalone y caché exclusiva de recursos públicos. Prueba instalación, cámara, red y reingreso en teléfonos reales. Capacita al administrador en altas, bajas y reasignación de contraseñas.
 6. Ejecuta el piloto con los casos de aceptación. Verifica que la aplicación usa su propio origen y revisa trazas redactadas, latencia y errores antes de abrir acceso.
+
+## Documentación relacionada
+
+- **[Guía de Despliegue Completa](DEPLOYMENT_GUIDE.md)**: Paso a paso desde cero hasta producción
+- **[Configuración y Dependencias](CONFIGURATION.md)**: Variables de entorno, dependencias y troubleshooting
+- **[Seguridad](SECURITY.md)**: Requisitos RF-007 y aceptación S01-S04
+- **[Plan de Pruebas](TEST_PLAN.md)**: Casos de aceptación y verificación
 
 ## Operación y recuperación de infraestructura
 
