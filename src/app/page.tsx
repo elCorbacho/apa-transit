@@ -1,10 +1,11 @@
-import { configurationStatus } from "@/server/config";
+import { configurationDiagnostic, configurationStatus } from "@/server/config";
 import TransitApp from "./transit-app";
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
   const status = configurationStatus();
+  const diagnostic = configurationDiagnostic();
   if (status.configured) return <TransitApp />;
   return <main id="main" className="setup-shell">
     <header className="brand">
@@ -24,6 +25,11 @@ export default function Home() {
           ? "Configuración de servidor presente. Los módulos operativos aún no están habilitados."
           : "Conexión con los servicios pendiente. El acceso y los registros están deshabilitados."}</p></div>
       </div>
+      {diagnostic && <div className="notice" role="status">
+        <span className="status-dot" aria-hidden="true" />
+        <div><strong>Diagnóstico de configuración</strong>
+          <p>Variable a corregir: {diagnostic.fields.join(", ") || "desconocida"} ({diagnostic.reason})</p></div>
+      </div>}
       <h2>Preparación del entorno</h2>
       <ol className="setup-steps">
         <li><span>01</span><div><strong>Seleccionar los proyectos</strong><p>Definir el entorno de pruebas en Vercel y Supabase.</p></div></li>

@@ -14,8 +14,41 @@ const configured = {
 };
 describe("server configuration", () => {
   it("keeps an unconfigured environment closed without exposing values", () => {
-    expect(configurationStatus({})).toEqual({ configured: false, productionApproved: false });
+    const status = configurationStatus({});
+    expect(status.configured).toBe(false);
+    expect(status.productionApproved).toBe(false);
+    expect(status.reason).toBe("incomplete");
+    expect(status.fields).toEqual([
+      "APP_ORIGIN", "DATABASE_URL", "SUPABASE_URL",
+      "SUPABASE_AUTH_KEY", "SUPABASE_ADMIN_KEY", "APP_SESSION_ENCRYPTION_KEY"
+    ]);
+    expect(JSON.stringify(status)).not.toContain("synthetic");
     expect(() => readServerConfig({})).toThrow("Server configuration is incomplete.");
+  });
+  it("names the setting that blocks configuration without exposing its value", () => {
+    const reasonOf = (overrides: Record<string, string>) =>
+      configurationStatus({ ...configured, ...overrides });
+    expect(reasonOf({ APP_SESSION_ENCRYPTION_KEY: "too-short" })).toMatchObject({
+      configured: false, reason: "encryption_key_invalid", fields: ["APP_SESSION_ENCRYPTION_KEY"]
+    });
+    expect(reasonOf({ DATABASE_URL: "postgresql://postgres:synthetic@db.example.invalid/postgres" })).toMatchObject({
+      reason: "database_login_invalid", fields: ["DATABASE_URL"]
+    });
+    expect(reasonOf({ DATABASE_URL: "postgresql://apa_runtime:synthetic@db.example.invalid/postgres?sslmode=require" })).toMatchObject({
+      reason: "database_tls_invalid", fields: ["DATABASE_URL"]
+    });
+    expect(reasonOf({ APP_ORIGIN: "http://localhost:3000/" })).toMatchObject({
+      reason: "invalid_origin", fields: ["APP_ORIGIN"]
+    });
+    expect(reasonOf({ SUPABASE_URL: "http://auth.example.invalid" })).toMatchObject({
+      reason: "auth_endpoint_invalid", fields: ["SUPABASE_URL"]
+    });
+    expect(reasonOf({ VERCEL_ENV: "production" })).toMatchObject({
+      reason: "security_verification_pending", fields: ["RF007_VERIFIED"]
+    });
+    const leaked = JSON.stringify(reasonOf({ DATABASE_URL: "postgresql://postgres:synthetic-secret@db.example.invalid/postgres" }));
+    expect(leaked).not.toContain("synthetic-secret");
+    expect(leaked).not.toContain("db.example.invalid");
   });
   it("does not allow a development flag to bypass the production gate", () => {
     const env = { ...configured, VERCEL_ENV: "production" };
