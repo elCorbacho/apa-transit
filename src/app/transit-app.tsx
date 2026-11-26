@@ -5,6 +5,7 @@ import {
   ApiFailure, loadHistory, loadMe, login, logout,
   type HistoryPage, type Movement, type SessionData
 } from "@/lib/client-api";
+import LocationManager from "./location-manager";
 
 type Screen = "home" | "history" | "account";
 type State = "checking" | "signedOut" | "signedIn" | "unavailable" | "logoutError";
@@ -206,6 +207,7 @@ export default function TransitApp() {
     <LoginPanel pending={pending} error={message} onSubmit={signIn} />
   </main>;
 
+  const activeSessionVersion = sessionVersion.current;
   return <main id="main" className="transit-shell transit-app">
     <header className="transit-header">
       <div className="transit-brand"><span>APA Transit</span><small>Anatomía Patológica</small></div>
@@ -240,6 +242,11 @@ export default function TransitApp() {
         <dt>Nombre</dt><dd>{session.profile.fullName}</dd>
         <dt>Correo</dt><dd>{session.profile.email}</dd></dl>
       <button className="transit-secondary" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>
+      {session.profile.role === "admin" ? <LocationManager onExpired={() => {
+        if (sessionVersion.current !== activeSessionVersion) return;
+        clearPrivateState();
+        setState("signedOut");
+      }} /> : null}
     </section> : null}
   </main>;
 }

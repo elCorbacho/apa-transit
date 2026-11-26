@@ -16,6 +16,7 @@ export type Movement = {
 
 export type SessionData = { profile: Profile; lastMovement: Movement | null };
 export type HistoryPage = { items: Movement[]; nextCursor: string | null };
+export type Location = { id: string; name: string; isActive: boolean };
 
 export class ApiFailure extends Error {
   constructor(public readonly status: number) {
@@ -50,4 +51,31 @@ export function logout(fetcher?: typeof fetch) {
   return request<void>("/api/auth/logout", {
     method: "POST", headers: { "x-apa-csrf": "1" }
   }, fetcher);
+}
+
+export function listLocations(fetcher?: typeof fetch) {
+  return request<{ items: Location[] }>("/api/admin/locations", {}, fetcher);
+}
+
+export function createLocation(name: string, fetcher?: typeof fetch) {
+  return request<Location>("/api/admin/locations", {
+    method: "POST", headers: { "content-type": "application/json", "x-apa-csrf": "1" },
+    body: JSON.stringify({ name })
+  }, fetcher);
+}
+
+export function editLocation(id: string, changes: { name?: string; isActive?: boolean }, fetcher?: typeof fetch) {
+  return request<Location>(`/api/admin/locations/${encodeURIComponent(id)}`, {
+    method: "PATCH", headers: { "content-type": "application/json", "x-apa-csrf": "1" },
+    body: JSON.stringify(changes)
+  }, fetcher);
+}
+
+export async function downloadLocationQR(id: string, fetcher: typeof fetch = fetch) {
+  const response = await fetcher(`/api/admin/locations/${encodeURIComponent(id)}/qr`, {
+    credentials: "same-origin", cache: "no-store"
+  });
+  if (!response.ok) throw new ApiFailure(response.status);
+  if (response.headers.get("content-type")?.split(";")[0] !== "image/png") throw new ApiFailure(503);
+  return response.blob();
 }

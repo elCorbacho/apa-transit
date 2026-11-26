@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ApiFailure, loadHistory, loadMe, login, logout } from "../src/lib/client-api";
+import { ApiFailure, createLocation, downloadLocationQR, editLocation, listLocations, loadHistory, loadMe, login, logout } from "../src/lib/client-api";
 
 const profile = { id: "synthetic-id", username: "operator.test", fullName: "Synthetic Operator", email: "operator@example.invalid", role: "operator" };
 
@@ -41,5 +41,38 @@ describe("same-origin client requests", () => {
       method: "POST", credentials: "same-origin", cache: "no-store",
       headers: expect.objectContaining({ "x-apa-csrf": "1" })
     }));
+  });
+
+  it("uses protected same-origin requests for location administration and QR download", async () => {
+    const location = { id: "11111111-1111-4111-8111-111111111111", name: "Synthetic Room", isActive: true };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json({ items: [location] }))
+      .mockResolvedValueOnce(Response.json(location, { status: 201 }))
+      .mockResolvedValueOnce(Response.json({ ...location, isActive: false }))
+      .mockResolvedValueOnce(new Response(new Uint8Array([137, 80, 78, 71]), {
+        headers: { "content-type": "image/png" }
+      }));
+    expect(await listLocations(fetcher)).toEqual({ items: [location] });
+    expect(await createLocation("Synthetic Room", fetcher)).toEqual(location);
+    expect(await editLocation(location.id, { isActive: false }, fetcher)).toMatchObject({ isActive: false });
+    expect((await downloadLocationQR(location.id, fetcher)).size).toBe(4);
+    for (const [url, options] of fetcher.mock.calls) {
+      expect(String(url)).toMatch(/^\/api\/admin\/locations(?:\/|$)/);
+      expect(options).toMatchObject({ credentials: "same-origin", cache: "no-store" });
+    }
+    expect(fetcher.mock.calls[1][1]).toMatchObject({
+      method: "POST", body: JSON.stringify({ name: "Synthetic Room" }),
+      headers: expect.objectContaining({ "x-apa-csrf": "1" })
+    });
+    expect(fetcher.mock.calls[2][1]).toMatchObject({
+      method: "PATCH", body: JSON.stringify({ isActive: false }),
+      headers: expect.objectContaining({ "x-apa-csrf": "1" })
+    });
+    expect(fetcher.mock.calls[3][0]).toBe(`/api/admin/locations/${location.id}/qr`);
+  });
+
+  it("rejects denied QR downloads instead of rendering a server error as an image", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ error: "private detail" }, { status: 401 }));
+    await expect(downloadLocationQR("synthetic-id", fetcher)).rejects.toMatchObject({ status: 401 });
   });
 });

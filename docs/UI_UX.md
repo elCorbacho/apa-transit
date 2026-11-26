@@ -31,6 +31,13 @@ Sin configuración conserva la pantalla de preparación. La interfaz borra los
 datos privados al cerrar sesión o al recibir una denegación de acceso; un
 cierre no confirmado no vuelve a mostrar el historial anterior.
 
-El escáner, la confirmación posterior a un QR, la administración y las pruebas
+El escáner, la confirmación posterior a un QR, la administración de cuentas y las pruebas
 en navegador/dispositivos siguen pendientes. Esta etapa no habilita el uso
 operativo ni demuestra persistencia de sesión en una PWA instalada.
+
+Para cuentas administrativas, Configuración incluye ahora una interfaz local
+para listar, crear, renombrar, desactivar/reactivar ubicaciones y descargar su
+QR PNG. La desactivación solicita confirmación; el operador no ve estos
+controles y la API verifica el rol por separado. No está implementada aún la
+administración de cuentas. Las pruebas de HTML estático no sustituyen la
+interacción en navegador ni la lectura de un QR impreso en dispositivos.

@@ -3,10 +3,22 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import Home from "../src/app/page";
 import { classifyHistoryFailure, HistoryList, LoginPanel } from "../src/app/transit-app";
 import { ApiFailure } from "../src/lib/client-api";
+import { LocationsPanel } from "../src/app/location-manager";
 
 afterEach(() => vi.unstubAllEnvs());
 
 describe("frontend presentation", () => {
+  it("labels the admin location list and form without displaying a QR token", () => {
+    const markup = renderToStaticMarkup(<LocationsPanel items={[{
+      id: "11111111-1111-4111-8111-111111111111", name: "Synthetic Room", isActive: true
+    }]} pending={false} onCreate={() => {}} onRename={() => {}} onToggle={() => {}}
+    onDownload={() => {}} />);
+    expect(markup).toContain("Nueva ubicación");
+    expect(markup).toContain("Synthetic Room");
+    expect(markup).toContain("Descargar QR");
+    expect(markup).toContain("Desactivar");
+    expect(markup).not.toContain("APA-TRANSIT:LOC:");
+  });
   it("invalidates the current session on 401 even if the history tab changed", () => {
     expect(classifyHistoryFailure(new ApiFailure(401), 1, 2, 3, 3)).toBe("expired");
     expect(classifyHistoryFailure(new ApiFailure(401), 1, 1, 3, 4)).toBe("ignore");

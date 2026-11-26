@@ -86,3 +86,12 @@ renombrado, descarga PNG sin caché, token inmutable, desactivación/reactivaci�
 rechazo de captura inactiva, historial posterior y auditoría. No comprueba que
 un teléfono lea el PNG impreso ni la contención entre conexiones reales para
 una desactivación simultánea: Q01/Q02 y M04 siguen requiriendo esas pruebas.
+
+`tests/client-api.test.ts` también comprueba el contrato del cliente de
+ubicaciones: solicitudes sin caché con cookie del mismo origen, CSRF para
+mutaciones, blob PNG y 401 antes de procesar una descarga. La vista administrativa
+se comprueba como HTML inicial estático en `tests/frontend.test.tsx`;
+`tests/location-download-race.test.tsx` comprueba que una descarga pendiente
+no se dispara tras desmontar la vista por cierre de sesión. Falta automatizar
+creación/edición/descarga desde un navegador real y comprobar el 401 tardío en
+un navegador, antes de aceptar Q01/Q02 en un dispositivo.
