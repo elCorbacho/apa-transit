@@ -1,9 +1,11 @@
 import { configurationStatus } from "@/server/config";
+import TransitApp from "./transit-app";
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
   const status = configurationStatus();
+  if (status.configured) return <TransitApp />;
   return <main id="main" className="setup-shell">
     <header className="brand">
       <svg viewBox="0 0 40 40" aria-hidden="true" width="40" height="40">

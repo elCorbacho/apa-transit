@@ -34,6 +34,10 @@ variables privadas no impide compilar: los endpoints protegidos rechazan el acce
 con 503 hasta que exista una configuración válida. `/api/health` permanece en 503
 porque la aplicación completa aún no está habilitada.
 
+Con configuración válida, la pantalla principal carga la sesión desde `/api/me`
+y ofrece login, historial compartido y cierre. El escáner y la administración
+todavía no están disponibles; no se debe usar esta interfaz para registros reales.
+
 Para preparar una conexión real, copie `.env.example` a `.env.local` y complete
 los valores únicamente en el entorno privado. No publique ese archivo ni envíe
 sus valores por chat. La conexión PostgreSQL requiere un usuario de ejecución

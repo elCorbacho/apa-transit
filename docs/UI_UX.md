@@ -22,3 +22,15 @@ La navegación permanente ofrece Inicio, Movimientos y Configuración. Usa contr
 | Historial vacío | Muestra que todavía no hay movimientos. |
 
 En un dispositivo compatible, el usuario instala desde el navegador o agrega la PWA a su pantalla de inicio. Prueba permisos y persistencia de sesión dentro del contexto instalado. En la gestión administrativa pide confirmación para borrado lógico y muestra el impacto de revocar sesiones.
+
+## Estado de implementación local
+
+Con configuración válida, la interfaz ofrece login, Inicio con último movimiento
+propio, historial compartido con cursor y Mi cuenta con cierre de sesión.
+Sin configuración conserva la pantalla de preparación. La interfaz borra los
+datos privados al cerrar sesión o al recibir una denegación de acceso; un
+cierre no confirmado no vuelve a mostrar el historial anterior.
+
+El escáner, la confirmación posterior a un QR, la administración y las pruebas
+en navegador/dispositivos siguen pendientes. Esta etapa no habilita el uso
+operativo ni demuestra persistencia de sesión en una PWA instalada.

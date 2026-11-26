@@ -71,3 +71,11 @@ local no sustituye la aceptación de Auth/Supabase en destino ni RF-007.
 El límite provisional de 120 intentos de escaneo por sesión se comprueba con
 datos sintéticos, incluidos QR inválidos y desconocidos, sin persistir el
 movimiento rechazado. El umbral operativo debe validarse antes del piloto.
+
+`tests/client-api.test.ts` comprueba solicitudes de login, perfil, historial
+paginado y cierre con mismo origen, sin caché y con CSRF en mutaciones.
+`tests/frontend.test.tsx` comprueba el HTML inicial de preparación/validación
+de sesión, las vistas estáticas de login e historial y la clasificación de un
+401 tardío del historial tras cambiar de pantalla o cerrar sesión. No simulan interacción
+real del navegador, cookies ni cámara; A01–A04, H01 y P01 siguen requiriendo
+pruebas de extremo a extremo en el entorno y dispositivos previstos.
