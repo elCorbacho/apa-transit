@@ -1,9 +1,32 @@
 import { describe, expect, it, vi } from "vitest";
-import { ApiFailure, createLocation, downloadLocationQR, editLocation, listLocations, loadHistory, loadMe, login, logout } from "../src/lib/client-api";
+import { ApiFailure, captureMovement, createLocation, downloadLocationQR, editLocation, listLocations, loadHistory, loadMe, login, logout } from "../src/lib/client-api";
 
 const profile = { id: "synthetic-id", username: "operator.test", fullName: "Synthetic Operator", email: "operator@example.invalid", role: "operator" };
 
 describe("same-origin client requests", () => {
+  it("retries an uncertain scan with the same ID and QR without exposing credentials", async () => {
+    const attempt = {
+      qrPayload: "APA-TRANSIT:LOC:11111111-1111-4111-8111-111111111111",
+      requestId: "22222222-2222-4222-8222-222222222222"
+    };
+    const movement = {
+      id: "33333333-3333-4333-8333-333333333333", locationId: "11111111-1111-4111-8111-111111111111",
+      locationName: "Synthetic Room", userName: "Synthetic Operator", recordedAt: "2026-11-26T10:00:00Z",
+      requestId: attempt.requestId
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockRejectedValueOnce(new TypeError("Network unavailable"))
+      .mockResolvedValueOnce(Response.json(movement));
+    await expect(captureMovement(attempt, fetcher)).rejects.toThrow("Network unavailable");
+    expect(await captureMovement(attempt, fetcher)).toEqual(movement);
+    expect(fetcher.mock.calls.map(([url, options]) => [url, options?.body])).toEqual([
+      ["/api/movements", JSON.stringify(attempt)], ["/api/movements", JSON.stringify(attempt)]
+    ]);
+    expect(fetcher.mock.calls[0][1]).toMatchObject({
+      method: "POST", credentials: "same-origin", cache: "no-store",
+      headers: expect.objectContaining({ "x-apa-csrf": "1" })
+    });
+  });
   it("logs in without exposing credentials in URL or persisted browser storage", async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ profile }));
     expect(await login("operator.test", "synthetic-password", fetcher)).toEqual({ profile });

@@ -6,8 +6,9 @@ import {
   type HistoryPage, type Movement, type SessionData
 } from "@/lib/client-api";
 import LocationManager from "./location-manager";
+import ScanFlow from "./scan-flow";
 
-type Screen = "home" | "history" | "account";
+type Screen = "home" | "history" | "account" | "scan";
 type State = "checking" | "signedOut" | "signedIn" | "unavailable" | "logoutError";
 
 export function classifyHistoryFailure(
@@ -220,11 +221,19 @@ export default function TransitApp() {
     </nav>
     {screen === "home" ? <section className="transit-card" aria-labelledby="home-title">
       <span className="eyebrow">INICIO</span><h1 id="home-title">Hola, {session.profile.fullName}</h1>
+      <button className="transit-primary" type="button" onClick={() => navigate("scan")}>Escanear QR</button>
       <p className="transit-muted">Tu último movimiento registrado:</p>
       {session.lastMovement ? <HistoryList items={[session.lastMovement]} /> :
         <p className="transit-empty">Todavía no registraste movimientos.</p>}
-      <p className="transit-note">El escáner estará disponible cuando se habiliten las ubicaciones y sus códigos QR.</p>
     </section> : null}
+    {screen === "scan" ? <ScanFlow onExpired={() => {
+      if (sessionVersion.current !== activeSessionVersion) return;
+      clearPrivateState();
+      setState("signedOut");
+    }} onCaptured={movement => {
+      if (sessionVersion.current !== activeSessionVersion) return;
+      setSession(current => current ? { ...current, lastMovement: movement } : null);
+    }} onClose={() => navigate("home")} /> : null}
     {screen === "history" ? <section className="transit-card" aria-labelledby="history-title">
       <span className="eyebrow">REGISTROS COMPARTIDOS</span><h1 id="history-title">Movimientos</h1>
       <p className="transit-muted">Historial general, del más reciente al más antiguo.</p>

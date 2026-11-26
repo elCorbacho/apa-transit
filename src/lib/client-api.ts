@@ -17,6 +17,7 @@ export type Movement = {
 export type SessionData = { profile: Profile; lastMovement: Movement | null };
 export type HistoryPage = { items: Movement[]; nextCursor: string | null };
 export type Location = { id: string; name: string; isActive: boolean };
+export type CaptureAttempt = { qrPayload: string; requestId: string };
 
 export class ApiFailure extends Error {
   constructor(public readonly status: number) {
@@ -45,6 +46,14 @@ export function loadMe(fetcher?: typeof fetch) {
 export function loadHistory(cursor?: string, fetcher?: typeof fetch) {
   const path = cursor ? `/api/movements?${new URLSearchParams({ cursor })}` : "/api/movements";
   return request<HistoryPage>(path, {}, fetcher);
+}
+
+export function captureMovement(attempt: CaptureAttempt, fetcher?: typeof fetch) {
+  return request<Movement>("/api/movements", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-apa-csrf": "1" },
+    body: JSON.stringify(attempt)
+  }, fetcher);
 }
 
 export function logout(fetcher?: typeof fetch) {

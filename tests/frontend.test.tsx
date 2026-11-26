@@ -4,10 +4,35 @@ import Home from "../src/app/page";
 import { classifyHistoryFailure, HistoryList, LoginPanel } from "../src/app/transit-app";
 import { ApiFailure } from "../src/lib/client-api";
 import { LocationsPanel } from "../src/app/location-manager";
+import { ScanPanel } from "../src/app/scan-flow";
 
 afterEach(() => vi.unstubAllEnvs());
 
 describe("frontend presentation", () => {
+  it("requires an explicit camera action and announces capture states", () => {
+    const idle = renderToStaticMarkup(<ScanPanel state="idle" movement={null}
+      onStart={() => {}} onRetry={() => {}} onReset={() => {}} onClose={() => {}} />);
+    expect(idle).toContain("Activar cámara");
+    expect(idle).toContain("scan-reader");
+    const busy = renderToStaticMarkup(<ScanPanel state="registering" movement={null}
+      onStart={() => {}} onRetry={() => {}} onReset={() => {}} onClose={() => {}} />);
+    expect(busy).toContain("Registrando");
+    expect(busy).not.toContain("Confirmado");
+    const uncertain = renderToStaticMarkup(<ScanPanel state="uncertain" movement={null}
+      onStart={() => {}} onRetry={() => {}} onReset={() => {}} onClose={() => {}} />);
+    expect(uncertain).toContain("Reintentar la misma captura");
+    const movement = {
+      id: "33333333-3333-4333-8333-333333333333", locationId: "11111111-1111-4111-8111-111111111111",
+      locationName: "Synthetic Room", userName: "Synthetic Operator", recordedAt: "2026-11-26T14:05:00.000Z"
+    };
+    const confirmed = renderToStaticMarkup(<ScanPanel state="confirmed" movement={movement}
+      onStart={() => {}} onRetry={() => {}} onReset={() => {}} onClose={() => {}} />);
+    expect(confirmed).toContain("Movimiento confirmado");
+    expect(confirmed).toContain("Synthetic Room");
+    expect(confirmed).toContain("Synthetic Operator");
+    expect(confirmed).toContain('dateTime="2026-11-26T14:05:00.000Z"');
+    expect(confirmed).toContain("Escanear de nuevo");
+  });
   it("labels the admin location list and form without displaying a QR token", () => {
     const markup = renderToStaticMarkup(<LocationsPanel items={[{
       id: "11111111-1111-4111-8111-111111111111", name: "Synthetic Room", isActive: true

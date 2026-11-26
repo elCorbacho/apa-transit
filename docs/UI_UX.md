@@ -41,3 +41,11 @@ QR PNG. La desactivación solicita confirmación; el operador no ve estos
 controles y la API verifica el rol por separado. No está implementada aún la
 administración de cuentas. Las pruebas de HTML estático no sustituyen la
 interacción en navegador ni la lectura de un QR impreso en dispositivos.
+
+Inicio incluye un escáner local que pide la cámara tras una acción explícita,
+prefiere la cámara posterior, registra al detectar un QR, y solo muestra
+confirmación cuando responde la API con ubicación, nombre y hora del servidor.
+Ante un resultado de red incierto ofrece reintentar con el mismo identificador
+en memoria. Al salir de la pantalla o pasar a segundo plano libera la cámara.
+Faltan pruebas reales de permisos, cámara, lectura de QR y tiempo de respuesta
+en Android/iOS; esta implementación no habilita todavía el uso operativo.

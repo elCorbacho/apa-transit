@@ -95,3 +95,11 @@ se comprueba como HTML inicial estático en `tests/frontend.test.tsx`;
 no se dispara tras desmontar la vista por cierre de sesión. Falta automatizar
 creación/edición/descarga desde un navegador real y comprobar el 401 tardío en
 un navegador, antes de aceptar Q01/Q02 en un dispositivo.
+
+El cliente de captura se comprueba con una falla de red sintética y reintento
+idéntico (mismo `qrPayload` y `requestId`). `tests/frontend.test.tsx` valida
+solo el HTML inicial de la cámara y la confirmación con los datos del servidor.
+`tests/scanner-lifecycle.test.tsx` simula permisos denegados y pestaña oculta
+o componente desmontado mientras la cámara aún está iniciando. No ejecuta una
+cámara real ni prueba liberación de dispositivos: M01/M03 y P01
+siguen pendientes de pruebas de extremo a extremo por HTTPS.

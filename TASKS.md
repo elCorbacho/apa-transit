@@ -25,7 +25,7 @@ parcial no equivale a aceptar un caso en el entorno de destino.
 | T04 | API local de login, perfil y cierre; interfaz inicial de login y perfil | Auth real, navegador y sesiones persistentes (A01–A04) |
 | T05 | Pendiente | Administración de cuentas y reconciliación con Auth |
 | T06 | API e interfaz local de ubicaciones y descarga PNG, con pruebas sintéticas | Interacción en navegador, lectura de QR impreso en dispositivos y aceptación Q01–Q02 |
-| T07 | Pendiente | Cámara, captura automática y confirmación |
+| T07 | Flujo local de escáner, captura y confirmación implementado | Cámara, permisos, red y QR impreso en dispositivos (M01/M03), tiempo y concurrencia en destino |
 | T08 | API e interfaz local de historial | Flujo completo y H01–H02 en dispositivos |
 | T09 | Pendiente | Piloto, respaldo, restauración y aceptación de seguridad |
 
