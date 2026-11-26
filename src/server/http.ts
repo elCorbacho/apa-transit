@@ -2,7 +2,7 @@ import "server-only";
 import { ZodError } from "zod";
 import { ApiError } from "./errors";
 import { requireMutationOrigin } from "./request-security";
-import { readServerConfig } from "./config";
+import { isProduction, readServerConfig } from "./config";
 
 export function json(value: unknown, status = 200, headers: Record<string, string> = {}) {
   return Response.json(value, { status, headers: { "Cache-Control": "no-store", ...headers } });
@@ -13,8 +13,20 @@ export async function handle(work: () => Promise<Response>): Promise<Response> {
     if (error instanceof ApiError) return json({ error: { code: error.code, message: error.message } }, error.status);
     if (error instanceof ZodError) return json({ error: { code: "INVALID_INPUT", message: "Invalid request." } }, 400);
     // Never return provider/database/configuration errors or log credentials.
-    return json({ error: { code: "SERVICE_UNAVAILABLE", message: "Service temporarily unavailable." } }, 503);
+    // Outside production the failure class is named so a deployment can be
+    // fixed; the message and every value stay withheld.
+    return json({
+      error: { code: "SERVICE_UNAVAILABLE", message: "Service temporarily unavailable." },
+      ...(isProduction() ? {} : { diagnostic: failureClass(error) })
+    }, 503);
   }
+}
+
+function failureClass(error: unknown) {
+  const source = error instanceof Error ? error : undefined;
+  const raw = source ? (source as unknown as { code?: unknown }).code : undefined;
+  const code = typeof raw === "string" ? raw : undefined;
+  return { name: source?.name ?? typeof error, ...(code ? { code } : {}) };
 }
 export function requireMutation(request: Request) {
   const config = readServerConfig();

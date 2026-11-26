@@ -12,7 +12,7 @@ const schema = z.object({
   SESSION_DAYS: z.coerce.number().int().min(1).max(30).default(7)
 });
 
-function isProduction(env: Environment) {
+export function isProduction(env: Environment = process.env) {
   return env.VERCEL_ENV === "production"
     || env.APP_ENV === "production"
     || (env.NODE_ENV === "production" && env.VERCEL_ENV !== "preview" && env.APP_ENV !== "development" && env.APP_ENV !== "preview");
