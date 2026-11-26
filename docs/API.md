@@ -19,6 +19,8 @@ La PWA consume el mismo origen. Las respuestas protegidas y de sesión usan `Cac
 | `POST /api/admin/locations` | Admin | `{name}` → 201, asigna QR fijo |
 | `PATCH /api/admin/locations/:id` | Admin | Subconjunto de `name,isActive` → 200 |
 | `GET /api/admin/locations/:id/qr` | Admin | 200 con descarga PNG |
+| `GET /api/admin/users` | Admin | 200 con cuentas y estados, sin contraseñas ni tokens |
+| `PATCH /api/admin/users/:id` | Admin | `{fullName}` o `{isActive}` → 200 tras validar; cambios de email/rol/contraseña siguen pendientes |
 
 ## Movimientos
 

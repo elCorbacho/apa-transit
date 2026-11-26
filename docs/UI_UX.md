@@ -38,8 +38,10 @@ operativo ni demuestra persistencia de sesión en una PWA instalada.
 Para cuentas administrativas, Configuración incluye ahora una interfaz local
 para listar, crear, renombrar, desactivar/reactivar ubicaciones y descargar su
 QR PNG. La desactivación solicita confirmación; el operador no ve estos
-controles y la API verifica el rol por separado. No está implementada aún la
-administración de cuentas. Las pruebas de HTML estático no sustituyen la
+controles y la API verifica el rol por separado. La administración de usuarios
+permite listar cuentas, renombrar perfiles y desactivar/reactivar usuarios;
+el listado no expone contraseñas ni tokens, y la API impide desactivar al
+último admin activo. Las pruebas de HTML estático no sustituyen la
 interacción en navegador ni la lectura de un QR impreso en dispositivos.
 
 Inicio incluye un escáner local que pide la cámara tras una acción explícita,

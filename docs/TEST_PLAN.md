@@ -103,3 +103,9 @@ solo el HTML inicial de la cámara y la confirmación con los datos del servidor
 o componente desmontado mientras la cámara aún está iniciando. No ejecuta una
 cámara real ni prueba liberación de dispositivos: M01/M03 y P01
 siguen pendientes de pruebas de extremo a extremo por HTTPS.
+
+`tests/admin-users.test.ts` invoca rutas de administración de usuarios con PGlite
+y cuentas sintéticas: comprueba listado restringido, renombrado sin revocar sesiones,
+preservación de snapshots históricos y protección del último admin activo.
+Los cambios de email, rol y contraseña siguen pendientes por requerir reconciliación
+con Supabase Auth.
