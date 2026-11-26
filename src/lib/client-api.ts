@@ -88,3 +88,26 @@ export async function downloadLocationQR(id: string, fetcher: typeof fetch = fet
   if (response.headers.get("content-type")?.split(";")[0] !== "image/png") throw new ApiFailure(503);
   return response.blob();
 }
+
+export type AdminUser = {
+  id: string;
+  username: string;
+  fullName: string;
+  email: string;
+  role: "admin" | "operator";
+  isActive: boolean;
+  isBlocked: boolean;
+  isDeleted: boolean;
+};
+
+export function listUsers(fetcher?: typeof fetch) {
+  return request<{ items: AdminUser[] }>("/api/admin/users", {}, fetcher);
+}
+
+export function editUser(id: string, changes: { fullName?: string; isActive?: boolean }, fetcher?: typeof fetch) {
+  return request<AdminUser>(`/api/admin/users/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json", "x-apa-csrf": "1" },
+    body: JSON.stringify(changes)
+  }, fetcher);
+}

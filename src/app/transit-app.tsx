@@ -7,6 +7,7 @@ import {
 } from "@/lib/client-api";
 import LocationManager from "./location-manager";
 import ScanFlow from "./scan-flow";
+import UserManager from "./user-manager";
 
 type Screen = "home" | "history" | "account" | "scan";
 type State = "checking" | "signedOut" | "signedIn" | "unavailable" | "logoutError";
@@ -252,6 +253,11 @@ export default function TransitApp() {
         <dt>Correo</dt><dd>{session.profile.email}</dd></dl>
       <button className="transit-secondary" onClick={() => void signOut()} disabled={pending}>Cerrar sesión</button>
       {session.profile.role === "admin" ? <LocationManager onExpired={() => {
+        if (sessionVersion.current !== activeSessionVersion) return;
+        clearPrivateState();
+        setState("signedOut");
+      }} /> : null}
+      {session.profile.role === "admin" ? <UserManager onExpired={() => {
         if (sessionVersion.current !== activeSessionVersion) return;
         clearPrivateState();
         setState("signedOut");
