@@ -16,11 +16,17 @@
 | `SESSION_DAYS` | Duración de sesión en días | `7` |
 | `RF007_VERIFIED` | Confirmación de seguridad RF-007 | `false` (cambiar a `true` solo en producción verificada) |
 
-### Opcionales
+### Requerida al conectar con Supabase
 
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
-| `DATABASE_CA_CERT` | Certificado PEM para conexión TLS | Ruta a archivo `.pem` |
+| `DATABASE_CA_CERT` | Contenido PEM de la CA de Supabase, no una ruta | El certificado completo, desde `-----BEGIN CERTIFICATE-----` hasta `-----END CERTIFICATE-----` |
+
+El driver verifica el certificado del servidor con `rejectUnauthorized: true` y no acepta uno desconocido. Supabase firma la base y el pooler con su propia CA, así que sin esta variable la conexión falla con `SELF_SIGNED_CERT_IN_CHAIN`. El certificado se descarga desde el panel de Supabase (Database Settings → SSL Configuration) o desde:
+
+```
+https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt
+```
 
 ### ⚠️ Seguridad
 
