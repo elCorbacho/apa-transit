@@ -104,10 +104,26 @@ export function listUsers(fetcher?: typeof fetch) {
   return request<{ items: AdminUser[] }>("/api/admin/users", {}, fetcher);
 }
 
-export function editUser(id: string, changes: { fullName?: string; isActive?: boolean }, fetcher?: typeof fetch) {
+export function editUser(id: string, changes: { fullName?: string; email?: string; password?: string; role?: "admin" | "operator"; isActive?: boolean }, fetcher?: typeof fetch) {
   return request<AdminUser>(`/api/admin/users/${encodeURIComponent(id)}`, {
     method: "PATCH",
     headers: { "content-type": "application/json", "x-apa-csrf": "1" },
     body: JSON.stringify(changes)
+  }, fetcher);
+}
+
+export type CreateUserRequest = {
+  username: string;
+  fullName: string;
+  email: string;
+  password: string;
+  role: "admin" | "operator";
+};
+
+export function createUser(data: CreateUserRequest, fetcher?: typeof fetch) {
+  return request<AdminUser>("/api/admin/users", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-apa-csrf": "1" },
+    body: JSON.stringify(data)
   }, fetcher);
 }

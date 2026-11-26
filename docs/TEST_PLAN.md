@@ -107,5 +107,5 @@ siguen pendientes de pruebas de extremo a extremo por HTTPS.
 `tests/admin-users.test.ts` invoca rutas de administración de usuarios con PGlite
 y cuentas sintéticas: comprueba listado restringido, renombrado sin revocar sesiones,
 preservación de snapshots históricos y protección del último admin activo.
-Los cambios de email, rol y contraseña siguen pendientes por requerir reconciliación
-con Supabase Auth.
+Los cambios de email, rol y contraseña requieren reconciliación con Supabase Auth:
+bloquean login, revocan sesiones, actualizan Auth, y revierten si Auth falla.

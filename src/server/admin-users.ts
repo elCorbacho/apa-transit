@@ -9,6 +9,9 @@ export type AdminUserRow = {
   deleted_at: Date | null; auth_version: string | number;
 };
 export const userNameChange = z.strictObject({ fullName: z.string().trim().min(1).max(120) });
+export const userEmailChange = z.strictObject({ email: z.string().email().max(255) });
+export const userPasswordChange = z.strictObject({ password: z.string().min(8).max(255) });
+export const userRoleChange = z.strictObject({ role: z.enum(["admin", "operator"]) });
 
 export function userId(raw: string) {
   const parsed = z.uuid().safeParse(raw);

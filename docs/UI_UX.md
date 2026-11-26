@@ -39,10 +39,12 @@ Para cuentas administrativas, Configuración incluye ahora una interfaz local
 para listar, crear, renombrar, desactivar/reactivar ubicaciones y descargar su
 QR PNG. La desactivación solicita confirmación; el operador no ve estos
 controles y la API verifica el rol por separado. La administración de usuarios
-permite listar cuentas, renombrar perfiles y desactivar/reactivar usuarios;
-el listado no expone contraseñas ni tokens, y la API impide desactivar al
-último admin activo. Las pruebas de HTML estático no sustituyen la
-interacción en navegador ni la lectura de un QR impreso en dispositivos.
+permite listar cuentas, renombrar perfiles, cambiar email/rol/contraseña, y
+desactivar/reactivar usuarios; el listado no expone contraseñas ni tokens, y
+la API impide desactivar al último admin activo. Los cambios de email y
+contraseña requieren reconciliación con Supabase Auth y revocan sesiones
+activas. Las pruebas de HTML estático no sustituyen la interacción en
+navegador ni la lectura de un QR impreso en dispositivos.
 
 Inicio incluye un escáner local que pide la cámara tras una acción explícita,
 prefiere la cámara posterior, registra al detectar un QR, y solo muestra

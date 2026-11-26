@@ -7,10 +7,16 @@ import { GET as me } from "../src/app/api/me/route";
 import { GET as listUsers } from "../src/app/api/admin/users/route";
 import { PATCH as editUser } from "../src/app/api/admin/users/[id]/route";
 
-const mocks = vi.hoisted(() => ({ store: null as unknown, signIn: vi.fn(), refresh: vi.fn() }));
+const mocks = vi.hoisted(() => ({ store: null as unknown, signIn: vi.fn(), refresh: vi.fn(), adminUpdateUser: vi.fn(), adminCreateUser: vi.fn(), adminDeleteUser: vi.fn() }));
 vi.mock("../src/server/db", () => ({ database: () => mocks.store }));
 vi.mock("../src/server/auth-provider", () => ({
-  authProvider: () => ({ signIn: mocks.signIn, refresh: mocks.refresh })
+  authProvider: () => ({ 
+    signIn: mocks.signIn, 
+    refresh: mocks.refresh,
+    adminUpdateUser: mocks.adminUpdateUser,
+    adminCreateUser: mocks.adminCreateUser,
+    adminDeleteUser: mocks.adminDeleteUser
+  })
 }));
 const origin = "https://app.example.invalid";
 const admin = "00000000-0000-4000-8000-000000000001";
@@ -50,6 +56,9 @@ beforeEach(async () => {
     accessToken: "synthetic-access", refreshToken: "synthetic-refresh", expiresAt: Math.floor(Date.now() / 1000) + 3600
   }));
   mocks.refresh.mockReset();
+  mocks.adminUpdateUser.mockReset().mockResolvedValue(undefined);
+  mocks.adminCreateUser.mockReset().mockResolvedValue("new-auth-user-id");
+  mocks.adminDeleteUser.mockReset().mockResolvedValue(undefined);
 });
 function req(path: string, method = "GET", cookie?: string, body?: unknown, csrf = true) {
   return new Request(`${origin}${path}`, {
@@ -94,15 +103,14 @@ describe("account administration foundation", () => {
     expect((await db.query("select action from apa_private.audit_events where target_id=$1", [operator])).rows).toHaveLength(1);
   });
 
-  it("rejects unauthorized, credential and role edits without mutation", async () => {
+  it("rejects unauthorized and invalid edits without mutation", async () => {
     const adminCookie = await signIn();
     const operatorCookie = await signIn("operator.test");
     const path = `/api/admin/users/${operator}`;
     expect((await editUser(req(path, "PATCH", operatorCookie, { fullName: "Changed" }), params(operator))).status).toBe(403);
     expect((await editUser(req(path, "PATCH", adminCookie, { fullName: "Changed" }, false), params(operator))).status).toBe(403);
-    for (const changes of [{ email: "changed@example.invalid" }, { role: "admin" }, { password: "new-secret" }, { fullName: "" }]) {
-      expect((await editUser(req(path, "PATCH", adminCookie, changes), params(operator))).status).toBe(400);
-    }
+    // Valid email, password, role changes are now accepted (but require Auth reconciliation)
+    expect((await editUser(req(path, "PATCH", adminCookie, { fullName: "" }), params(operator))).status).toBe(400);
     expect((await editUser(req("/api/admin/users/bad", "PATCH", adminCookie, { fullName: "Changed" }), params("bad"))).status).toBe(400);
     expect((await db.query<{ full_name: string }>("select full_name from apa_private.profiles where id=$1", [operator])).rows[0].full_name).toBe("Synthetic Person");
   });
@@ -121,5 +129,50 @@ describe("account administration foundation", () => {
     const adminCookie = await signIn();
     expect((await editUser(req(`/api/admin/users/${admin}`, "PATCH", adminCookie, { isActive: false }), params(admin))).status).toBe(200);
     expect((await db.query<{ is_active: boolean }>("select is_active from apa_private.profiles where id=$1", [admin])).rows[0].is_active).toBe(false);
+  });
+
+  it("changes email with Auth reconciliation", async () => {
+    const adminCookie = await signIn();
+    const newEmail = "newemail@example.invalid";
+    const result = await editUser(req(`/api/admin/users/${operator}`, "PATCH", adminCookie, { email: newEmail }), params(operator));
+    expect(result.status).toBe(200);
+    const user = await result.json();
+    expect(user.email).toBe(newEmail);
+    expect(user.isBlocked).toBe(false);
+    expect(mocks.adminUpdateUser).toHaveBeenCalledWith(operator, { email: newEmail });
+    expect((await db.query<{ email: string }>("select email from apa_private.profiles where id=$1", [operator])).rows[0].email).toBe(newEmail);
+  });
+
+  it("changes password with Auth reconciliation and revokes sessions", async () => {
+    const adminCookie = await signIn();
+    const operatorCookie = await signIn("operator.test");
+    const newPassword = "newpassword123";
+    const result = await editUser(req(`/api/admin/users/${operator}`, "PATCH", adminCookie, { password: newPassword }), params(operator));
+    expect(result.status).toBe(200);
+    expect(mocks.adminUpdateUser).toHaveBeenCalledWith(operator, { password: newPassword });
+    // Verify sessions were revoked
+    const { rows: sessions } = await db.query("select * from apa_private.app_sessions where user_id=$1 and revoked_at is null", [operator]);
+    expect(sessions.length).toBe(0);
+  });
+
+  it("changes role and revokes sessions", async () => {
+    const adminCookie = await signIn();
+    const result = await editUser(req(`/api/admin/users/${operator}`, "PATCH", adminCookie, { role: "admin" }), params(operator));
+    expect(result.status).toBe(200);
+    const user = await result.json();
+    expect(user.role).toBe("admin");
+    // Verify sessions were revoked
+    const { rows: sessions } = await db.query("select * from apa_private.app_sessions where user_id=$1 and revoked_at is null", [operator]);
+    expect(sessions.length).toBe(0);
+  });
+
+  it("reverts block if Auth email update fails", async () => {
+    const adminCookie = await signIn();
+    mocks.adminUpdateUser.mockRejectedValueOnce(new Error("Auth failed"));
+    const result = await editUser(req(`/api/admin/users/${operator}`, "PATCH", adminCookie, { email: "new@example.invalid" }), params(operator));
+    expect(result.status).toBe(503);
+    // Verify user is not blocked
+    const { rows } = await db.query<{ blocked_at: Date | null }>("select blocked_at from apa_private.profiles where id=$1", [operator]);
+    expect(rows[0].blocked_at).toBeNull();
   });
 });

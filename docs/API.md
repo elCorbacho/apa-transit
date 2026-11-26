@@ -20,7 +20,8 @@ La PWA consume el mismo origen. Las respuestas protegidas y de sesión usan `Cac
 | `PATCH /api/admin/locations/:id` | Admin | Subconjunto de `name,isActive` → 200 |
 | `GET /api/admin/locations/:id/qr` | Admin | 200 con descarga PNG |
 | `GET /api/admin/users` | Admin | 200 con cuentas y estados, sin contraseñas ni tokens |
-| `PATCH /api/admin/users/:id` | Admin | `{fullName}` o `{isActive}` → 200 tras validar; cambios de email/rol/contraseña siguen pendientes |
+| `POST /api/admin/users` | Admin | `{username,fullName,email,password,role}` → 201 tras crear en Auth y PostgreSQL |
+| `PATCH /api/admin/users/:id` | Admin | `{fullName,email,password,role,isActive}` → 200 tras validar; cambios de email/password requieren reconciliación Auth |
 
 ## Movimientos
 
