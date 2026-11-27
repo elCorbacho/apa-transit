@@ -143,14 +143,14 @@ export default function UserManager({ onExpired }: Props) {
   }
 
   if (loading) {
-    return <div>Loading users...</div>;
+    return <p className="transit-note" role="status">Loading users…</p>;
   }
 
   return (
-    <div>
-      <h2>User Management</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button onClick={() => setShowCreateForm(true)} disabled={pending}>Create User</button>
+    <section className="user-manager" aria-labelledby="user-manager-title">
+      <h2 id="user-manager-title">User Management</h2>
+      {error && <p className="transit-error" role="alert">{error}</p>}
+      <button className="transit-primary" type="button" onClick={() => setShowCreateForm(true)} disabled={pending}>Create User</button>
       {showCreateForm && (
         <CreateUserForm
           onSubmit={handleCreate}
@@ -158,13 +158,19 @@ export default function UserManager({ onExpired }: Props) {
           pending={pending}
         />
       )}
-      <ul>
+      {users.length === 0 && !error && <p className="transit-empty">No users yet.</p>}
+      <ul className="user-list">
         {users.map(user => (
           <li key={user.id}>
-            <strong>{user.username}</strong> ({user.role})
+            <div className="user-details">
+              <div><strong>{user.username}</strong> <span className="user-role">{user.role}</span></div>
+              <span>{user.fullName}</span>
+              <span>{user.email}</span>
+            </div>
             {editing === user.id ? (
-              <div>
+              <div className="user-edit">
                 <form
+                  className="user-form user-form-edit"
                   onSubmit={e => {
                     e.preventDefault();
                     const form = e.currentTarget;
@@ -173,10 +179,11 @@ export default function UserManager({ onExpired }: Props) {
                     if (fullName) void handleRename(user.id, fullName);
                   }}
                 >
-                  <input name="fullName" defaultValue={user.fullName} placeholder="Full name" required disabled={pending} />
-                  <button type="submit" disabled={pending}>Rename</button>
+                  <label>Full name<input name="fullName" defaultValue={user.fullName} autoComplete="off" required disabled={pending} /></label>
+                  <button className="transit-secondary" type="submit" disabled={pending}>Rename</button>
                 </form>
                 <form
+                  className="user-form user-form-edit"
                   onSubmit={e => {
                     e.preventDefault();
                     const form = e.currentTarget;
@@ -185,10 +192,11 @@ export default function UserManager({ onExpired }: Props) {
                     if (email) void handleEmailChange(user.id, email);
                   }}
                 >
-                  <input name="email" type="email" defaultValue={user.email} placeholder="Email" required disabled={pending} />
-                  <button type="submit" disabled={pending}>Change Email</button>
+                  <label>Email<input name="email" type="email" defaultValue={user.email} autoComplete="off" spellCheck={false} required disabled={pending} /></label>
+                  <button className="transit-secondary" type="submit" disabled={pending}>Change Email</button>
                 </form>
                 <form
+                  className="user-form user-form-edit"
                   onSubmit={e => {
                     e.preventDefault();
                     const form = e.currentTarget;
@@ -197,10 +205,11 @@ export default function UserManager({ onExpired }: Props) {
                     if (password) void handlePasswordChange(user.id, password);
                   }}
                 >
-                  <input name="password" type="password" placeholder="New password" required minLength={8} disabled={pending} />
-                  <button type="submit" disabled={pending}>Change Password</button>
+                  <label>New password<input name="password" type="password" autoComplete="new-password" required minLength={8} disabled={pending} /></label>
+                  <button className="transit-secondary" type="submit" disabled={pending}>Change Password</button>
                 </form>
                 <form
+                  className="user-form user-form-edit"
                   onSubmit={e => {
                     e.preventDefault();
                     const form = e.currentTarget;
@@ -209,32 +218,26 @@ export default function UserManager({ onExpired }: Props) {
                     void handleRoleChange(user.id, role);
                   }}
                 >
-                  <select name="role" defaultValue={user.role} disabled={pending}>
+                  <label>Role<select name="role" defaultValue={user.role} disabled={pending}>
                     <option value="admin">Admin</option>
                     <option value="operator">Operator</option>
-                  </select>
-                  <button type="submit" disabled={pending}>Change Role</button>
+                  </select></label>
+                  <button className="transit-secondary" type="submit" disabled={pending}>Change Role</button>
                 </form>
-                <button type="button" onClick={() => setEditing(null)} disabled={pending}>Cancel</button>
+                <div className="user-actions"><button className="transit-secondary" type="button" onClick={() => setEditing(null)} disabled={pending}>Cancel</button></div>
               </div>
             ) : (
-              <>
-                {" "}
-                <span>{user.fullName}</span>
-                {" "}
-                <span>{user.email}</span>
-                {" "}
-                <button onClick={() => setEditing(user.id)} disabled={pending}>Edit</button>
-                {" "}
-                <button onClick={() => void handleToggleActive(user.id, !user.isActive)} disabled={pending}>
+              <div className="user-actions">
+                <button className="transit-secondary" type="button" onClick={() => setEditing(user.id)} disabled={pending}>Edit</button>
+                <button className="transit-secondary" type="button" onClick={() => void handleToggleActive(user.id, !user.isActive)} disabled={pending}>
                   {user.isActive ? "Deactivate" : "Activate"}
                 </button>
-              </>
+              </div>
             )}
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 
@@ -245,6 +248,8 @@ function CreateUserForm({ onSubmit, onCancel, pending }: {
 }) {
   return (
     <form
+      className="user-form user-form-create"
+      aria-label="Create User"
       onSubmit={e => {
         e.preventDefault();
         const form = e.currentTarget;
@@ -259,16 +264,18 @@ function CreateUserForm({ onSubmit, onCancel, pending }: {
         onSubmit(data);
       }}
     >
-      <input name="username" placeholder="Username" required minLength={3} maxLength={40} disabled={pending} />
-      <input name="fullName" placeholder="Full name" required disabled={pending} />
-      <input name="email" type="email" placeholder="Email" required disabled={pending} />
-      <input name="password" type="password" placeholder="Password" required minLength={8} disabled={pending} />
-      <select name="role" disabled={pending}>
+      <label>Username<input name="username" autoComplete="off" spellCheck={false} required minLength={3} maxLength={40} disabled={pending} /></label>
+      <label>Full name<input name="fullName" autoComplete="off" required disabled={pending} /></label>
+      <label>Email<input name="email" type="email" autoComplete="off" spellCheck={false} required disabled={pending} /></label>
+      <label>Password<input name="password" type="password" autoComplete="new-password" required minLength={8} disabled={pending} /></label>
+      <label>Role<select name="role" disabled={pending}>
         <option value="operator">Operator</option>
         <option value="admin">Admin</option>
-      </select>
-      <button type="submit" disabled={pending}>Create</button>
-      <button type="button" onClick={onCancel} disabled={pending}>Cancel</button>
+      </select></label>
+      <div className="user-actions">
+        <button className="transit-primary" type="submit" disabled={pending}>Create</button>
+        <button className="transit-secondary" type="button" onClick={onCancel} disabled={pending}>Cancel</button>
+      </div>
     </form>
   );
 }
